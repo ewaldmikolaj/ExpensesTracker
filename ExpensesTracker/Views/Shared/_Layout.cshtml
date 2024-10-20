@@ -5,39 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"] - ExpensesTracker</title>
     <link rel="stylesheet" href="~/css/styles.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/ExpensesTracker.styles.css" asp-append-version="true"/>
 </head>
-<body>
+<body class="w-screen h-screen">
 <header>
-    <nav class="">
+    <nav class="w-full bg-neutral-900 shadow-neutral-950 shadow-md text-neutral-100 text-lg flex flex-row justify-between px-64 py-4">
         <div class="">
-            <a class="" asp-area="" asp-controller="Home" asp-action="Index">ExpensesTracker</a>
+            <a class="" asp-area="" asp-controller="Home" asp-action="Index">Expenses Tracker</a>
             <button class="" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class=""></span>
             </button>
-            <div class="">
-                <ul class="">
-                    <li class="">
-                        <a class="" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                    </li>
-                    <li class="">
-                        <a class="" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                    </li>
-                </ul>
-                <partial name="_LoginPartial" />
-            </div>
+        </div>
+        <div class="">
+            <partial name="_LoginPartial" />
         </div>
     </nav>
 </header>
-<div class="">
-    <main role="main" class="pb-3">
-        @RenderBody()
-    </main>
+<div class="w-full h-full">
+    @RenderBody()
 </div>
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-<script src="~/js/site.js" asp-append-version="true"></script>
 @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

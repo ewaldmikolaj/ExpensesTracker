@@ -1,7 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    './Pages/**/*.cshtml',
+    './**/Pages/**/*.cshtml',
     './Views/**/*.cshtml'
   ],
   theme: {
@@ -9,4 +9,3 @@ module.exports = {
   },
   plugins: [],
 };
-
