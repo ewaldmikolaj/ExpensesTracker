@@ -6,10 +6,7 @@ namespace ExpensesTracker.Areas.Identity.Data;
 
 public class ExpensesTrackerIdentityDbContext : IdentityDbContext<IdentityUser>
 {
-    public ExpensesTrackerIdentityDbContext(DbContextOptions<ExpensesTrackerIdentityDbContext> options)
-        : base(options)
-    {
-    }
+    public ExpensesTrackerIdentityDbContext(DbContextOptions<ExpensesTrackerIdentityDbContext> options) : base(options) { }
     
     protected override void OnModelCreating(ModelBuilder builder)
     {
