@@ -3,6 +3,7 @@ using System;
 using ExpensesTracker.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,12 +11,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ExpensesTracker.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241120191238_ApplicationModels")]
+    partial class ApplicationModels
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
+            modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
 
             modelBuilder.Entity("ExpensesTracker.Models.ApplicationUser", b =>
                 {
@@ -87,109 +90,6 @@ namespace ExpensesTracker.Data.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
-                });
-
-            modelBuilder.Entity("ExpensesTracker.Models.Expense", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("ListId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("PayerId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int?>("ReceiptPhotoId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ListId");
-
-                    b.HasIndex("PayerId");
-
-                    b.HasIndex("ReceiptPhotoId");
-
-                    b.ToTable("Expense");
-                });
-
-            modelBuilder.Entity("ExpensesTracker.Models.List", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsPublic")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("OwnerId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("PublicUrl")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OwnerId");
-
-                    b.ToTable("List");
-                });
-
-            modelBuilder.Entity("ExpensesTracker.Models.ListShare", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ListId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ListName")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ListId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("ListShare");
-                });
-
-            modelBuilder.Entity("ExpensesTracker.Models.ReceiptPhoto", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Path")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ReceiptPhoto");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -322,59 +222,6 @@ namespace ExpensesTracker.Data.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
-                });
-
-            modelBuilder.Entity("ExpensesTracker.Models.Expense", b =>
-                {
-                    b.HasOne("ExpensesTracker.Models.List", "List")
-                        .WithMany()
-                        .HasForeignKey("ListId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ExpensesTracker.Models.ApplicationUser", "Payer")
-                        .WithMany()
-                        .HasForeignKey("PayerId");
-
-                    b.HasOne("ExpensesTracker.Models.ReceiptPhoto", "ReceiptPhoto")
-                        .WithMany()
-                        .HasForeignKey("ReceiptPhotoId");
-
-                    b.Navigation("List");
-
-                    b.Navigation("Payer");
-
-                    b.Navigation("ReceiptPhoto");
-                });
-
-            modelBuilder.Entity("ExpensesTracker.Models.List", b =>
-                {
-                    b.HasOne("ExpensesTracker.Models.ApplicationUser", "Owner")
-                        .WithMany()
-                        .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Owner");
-                });
-
-            modelBuilder.Entity("ExpensesTracker.Models.ListShare", b =>
-                {
-                    b.HasOne("ExpensesTracker.Models.List", "List")
-                        .WithMany()
-                        .HasForeignKey("ListId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ExpensesTracker.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("List");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
