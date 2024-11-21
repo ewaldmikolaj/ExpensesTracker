@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ExpensesTracker.Data;
 using ExpensesTracker.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ExpensesTracker.Controllers
 {
+    [Authorize]
     public class ReceiptPhotoController : Controller
     {
         private readonly ApplicationDbContext _context;

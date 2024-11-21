@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ExpensesTracker.Data;
 using ExpensesTracker.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ExpensesTracker
 {
+    [Authorize]
     public class ListController : Controller
     {
         private readonly ApplicationDbContext _context;
