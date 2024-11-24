@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -8,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using ExpensesTracker.Data;
 using ExpensesTracker.Models;
 using Microsoft.AspNetCore.Authorization;
+using NuGet.Protocol;
 
 namespace ExpensesTracker.Controllers
 {
@@ -48,9 +50,13 @@ namespace ExpensesTracker.Controllers
         }
 
         // GET: Expense/Create
+        [HttpGet]
         public IActionResult Create()
         {
-            ViewData["PayerId"] = new SelectList(_context.Users, "Id", "Id");
+            string ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var lists = _context.List.Include(l => l.Owner)
+                .Where(l => l.OwnerId == ownerId);
+            ViewData["ListId"] = new SelectList(lists, "Id", "Id");
             return View();
         }
 
@@ -59,14 +65,30 @@ namespace ExpensesTracker.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Date,Amount,PayerId,ReceiptPhotoId,ListId")] Expense expense)
+        public async Task<IActionResult> Create([Bind("Id,Title,Date,Amount,ReceiptPhotoId,ListId")] Expense expense)
         {
+            string payerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            expense.PayerId = payerId;
+            
+            Console.WriteLine(expense.ToJson());
             if (ModelState.IsValid)
             {
                 _context.Add(expense);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
+            if (!ModelState.IsValid)
+            {
+                foreach (var error in ModelState.Values)
+                {
+                    foreach (var err in error.Errors)
+                    {
+                        Console.WriteLine(err.ErrorMessage);
+                    }
+                }
+            }
+                
             ViewData["PayerId"] = new SelectList(_context.Users, "Id", "Id", expense.PayerId);
             return View(expense);
         }

@@ -8,14 +8,14 @@
 <div class="d-flex flex-column">
     <h1>Listy rachunków</h1>
     <div class="mt-2 mb-4">
-        <button asp-action="Create" class="btn btn-dark ">
-            Stwórz nową listę
-        </button>
+        <a asp-action="Create" class="text-decoration-none text-white">
+            <button class="btn btn-dark ">
+                Stwórz nową listę
+            </button>
+        </a>
     </div>
-    @* <p> *@
-    @*     <a asp-action="Create">Stwórz nową listę</a> *@
-    @* </p> *@
-    @foreach (var item in Model) {
+    @foreach (var item in Model) 
+    {
         <a asp-action="Details" asp-route-id="@item.Id" class="d-block w-100 py-3 px-2 bg-light border rounded text-decoration-none text-black mb-2">
             <div class="d-flex align-items-center justify-content-between">
                 <p class="m-0">@Html.DisplayFor(modelItem => item.Name)</p>

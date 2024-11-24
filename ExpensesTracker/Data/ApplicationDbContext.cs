@@ -11,11 +11,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 	{
 	}
 
-public DbSet<ExpensesTracker.Models.List> List { get; set; } = default!;
+	public DbSet<ExpensesTracker.Models.List> List { get; set; } = default!;
 
-public DbSet<ExpensesTracker.Models.Expense> Expense { get; set; } = default!;
+	public DbSet<ExpensesTracker.Models.Expense> Expense { get; set; } = default!;
 
-public DbSet<ExpensesTracker.Models.ListShare> ListShare { get; set; } = default!;
+	public DbSet<ExpensesTracker.Models.ListShare> ListShare { get; set; } = default!;
 
-public DbSet<ExpensesTracker.Models.ReceiptPhoto> ReceiptPhoto { get; set; } = default!;
+	public DbSet<ExpensesTracker.Models.ReceiptPhoto> ReceiptPhoto { get; set; } = default!;
 }

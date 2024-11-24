@@ -13,10 +13,10 @@ public class Expense
 	public decimal Amount { get; set; }
 	[Display(Name = "Płatnik")]
 	public string? PayerId { get; set; }
-	public ApplicationUser? Payer { get; set; }
+	public virtual ApplicationUser? Payer { get; set; }
 	[Display(Name = "Zdjęcie")]
 	public int? ReceiptPhotoId { get; set; }
-	public ReceiptPhoto? ReceiptPhoto { get; set; }
+	public virtual ReceiptPhoto? ReceiptPhoto { get; set; }
 	public int ListId {get; set;}
-	public List List { get; set; }
+	public virtual List? List { get; set; }
 }

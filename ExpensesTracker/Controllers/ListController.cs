@@ -39,12 +39,23 @@ namespace ExpensesTracker
             var list = await _context.List
                 .Include(l => l.Owner)
                 .FirstOrDefaultAsync(m => m.Id == id);
+            
             if (list == null)
             {
                 return NotFound();
             }
+            
+            var expenses = await _context.Expense
+                .Where(e => e.ListId == id)
+                .ToListAsync();
 
-            return View(list);
+            var expensesList = new ExpensesListViewModel
+            {
+                List = list,
+                Expenses = expenses
+            };
+
+            return View(expensesList);
         }
 
         // GET: List/Create

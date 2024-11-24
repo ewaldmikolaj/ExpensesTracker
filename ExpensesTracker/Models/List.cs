@@ -7,5 +7,5 @@ public class List
 	public bool IsPublic { get; set; }
 	public string? PublicUrl { get; set; }
 	public string OwnerId {get; set;}
-	public ApplicationUser? Owner { get; set; }
+	public virtual ApplicationUser? Owner { get; set; }
 }
