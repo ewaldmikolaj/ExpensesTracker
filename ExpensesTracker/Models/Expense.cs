@@ -17,6 +17,7 @@ public class Expense
 	[Display(Name = "Zdjęcie")]
 	public int? ReceiptPhotoId { get; set; }
 	public virtual ReceiptPhoto? ReceiptPhoto { get; set; }
+	[Display(Name = "Lista")]
 	public int ListId {get; set;}
 	public virtual List? List { get; set; }
 }

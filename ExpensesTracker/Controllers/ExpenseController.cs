@@ -53,10 +53,10 @@ namespace ExpensesTracker.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            string ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var lists = _context.List.Include(l => l.Owner)
-                .Where(l => l.OwnerId == ownerId);
-            ViewData["ListId"] = new SelectList(lists, "Id", "Id");
+                .Where(l => l.OwnerId == userId);
+            ViewData["ListId"] = new SelectList(lists, "Id", "Name");
             return View();
         }
 
@@ -67,8 +67,8 @@ namespace ExpensesTracker.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Expense expense)
         {
-            string payerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            expense.PayerId = payerId;
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            expense.PayerId = userId;
 
             if (expense.ReceiptPhoto != null & expense.ReceiptPhoto.Photo != null & expense.ReceiptPhoto.Photo.Length > 0)
             {
@@ -88,19 +88,10 @@ namespace ExpensesTracker.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-
-            if (!ModelState.IsValid)
-            {
-                foreach (var error in ModelState.Values)
-                {
-                    foreach (var err in error.Errors)
-                    {
-                        Console.WriteLine(err.ErrorMessage);
-                    }
-                }
-            }
                 
-            ViewData["PayerId"] = new SelectList(_context.Users, "Id", "Id", expense.PayerId);
+            var lists = _context.List.Include(l => l.Owner)
+                .Where(l => l.OwnerId == userId);
+            ViewData["ListId"] = new SelectList(lists, "Id", "Name");
             return View(expense);
         }
 
