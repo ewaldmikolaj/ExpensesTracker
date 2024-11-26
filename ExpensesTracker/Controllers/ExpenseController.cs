@@ -65,12 +65,23 @@ namespace ExpensesTracker.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Date,Amount,ReceiptPhotoId,ListId")] Expense expense)
+        public async Task<IActionResult> Create(Expense expense)
         {
             string payerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             expense.PayerId = payerId;
+
+            if (expense.ReceiptPhoto != null & expense.ReceiptPhoto.Photo != null & expense.ReceiptPhoto.Photo.Length > 0)
+            {
+                var fileExtension = Path.GetExtension(expense.ReceiptPhoto.Photo.FileName);
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/receipts", Guid.NewGuid().ToString() + fileExtension);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await expense.ReceiptPhoto.Photo.CopyToAsync(stream);
+                }
             
-            Console.WriteLine(expense.ToJson());
+                expense.ReceiptPhoto.Path = filePath;
+            }
+            
             if (ModelState.IsValid)
             {
                 _context.Add(expense);
