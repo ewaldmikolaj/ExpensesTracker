@@ -8,6 +8,7 @@ public class Expense
 	[Display(Name = "Tytuł")]
 	public string Title { get; set; }
 	[Display(Name = "Data")]
+	[DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
 	public DateTime Date { get; set; }
 	[Display(Name = "Kwota")]
 	public decimal Amount { get; set; }

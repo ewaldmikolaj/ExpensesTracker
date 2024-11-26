@@ -40,7 +40,10 @@ namespace ExpensesTracker.Controllers
 
             var expense = await _context.Expense
                 .Include(e => e.Payer)
+                .Include(e => e.ReceiptPhoto)
+                .Include(e => e.List)
                 .FirstOrDefaultAsync(m => m.Id == id);
+            
             if (expense == null)
             {
                 return NotFound();
@@ -69,24 +72,37 @@ namespace ExpensesTracker.Controllers
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             expense.PayerId = userId;
-
-            if (expense.ReceiptPhoto != null & expense.ReceiptPhoto.Photo != null & expense.ReceiptPhoto.Photo.Length > 0)
+            
+            if (expense.ReceiptPhoto != null && expense.ReceiptPhoto.Photo != null && expense.ReceiptPhoto.Photo.Length > 0)
             {
                 var fileExtension = Path.GetExtension(expense.ReceiptPhoto.Photo.FileName);
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/receipts", Guid.NewGuid().ToString() + fileExtension);
+                var relativePath = Path.Combine("/images/receipts", Guid.NewGuid().ToString() + fileExtension);
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot" + relativePath);
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await expense.ReceiptPhoto.Photo.CopyToAsync(stream);
                 }
             
-                expense.ReceiptPhoto.Path = filePath;
+                expense.ReceiptPhoto.Path = relativePath;
             }
+            Console.WriteLine(expense.ToJson());
             
             if (ModelState.IsValid)
             {
                 _context.Add(expense);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
+            }
+
+            if (!ModelState.IsValid)
+            {
+                foreach (var error in ModelState.Values)
+                {
+                    foreach (var err in error.Errors)
+                    {
+                        Console.WriteLine(err.ErrorMessage);
+                    }
+                }
             }
                 
             var lists = _context.List.Include(l => l.Owner)
