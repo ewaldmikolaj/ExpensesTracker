@@ -85,24 +85,12 @@ namespace ExpensesTracker.Controllers
             
                 expense.ReceiptPhoto.Path = relativePath;
             }
-            Console.WriteLine(expense.ToJson());
             
             if (ModelState.IsValid)
             {
                 _context.Add(expense);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
-            }
-
-            if (!ModelState.IsValid)
-            {
-                foreach (var error in ModelState.Values)
-                {
-                    foreach (var err in error.Errors)
-                    {
-                        Console.WriteLine(err.ErrorMessage);
-                    }
-                }
             }
                 
             var lists = _context.List.Include(l => l.Owner)
@@ -196,6 +184,73 @@ namespace ExpensesTracker.Controllers
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+        
+        // Receipt Photo related methods
+        [HttpPost, ActionName("DeleteReceiptPhoto")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteReceiptPhoto(int expenseId)
+        {
+            var expense = await _context.Expense
+                .Include(e => e.ReceiptPhoto)
+                .FirstOrDefaultAsync(e => e.Id == expenseId);
+            Console.WriteLine(expense.ToJson());
+            
+            if (expense == null)
+            {
+                return NotFound();
+            }
+
+            if (expense.ReceiptPhoto != null)
+            {
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot" + expense.ReceiptPhoto.Path);
+                if (System.IO.File.Exists(path))
+                {
+                    System.IO.File.Delete(path);
+                }
+                
+                _context.ReceiptPhoto.Remove(expense.ReceiptPhoto);
+                expense.ReceiptPhoto = null;
+                await _context.SaveChangesAsync();
+            }
+            
+            return RedirectToAction("Details", new { id = expenseId });
+        }
+
+        [HttpPost, ActionName("AddReceiptPhoto")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddReceiptPhoto(int expenseId, IFormFile? photo)
+        {
+            var expense = await _context.Expense.FindAsync(expenseId);
+            
+            if (expense == null)
+            {
+                return NotFound();
+            }
+
+            Console.WriteLine(photo.Length);
+            if (photo != null && photo.Length > 0)
+            {
+                var fileExtension = Path.GetExtension(photo.FileName);
+                var relativePath = Path.Combine("/images/receipts", Guid.NewGuid().ToString() + fileExtension);
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot" + relativePath);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await photo.CopyToAsync(stream);
+                }
+
+                var receiptPhoto = new ReceiptPhoto();
+                receiptPhoto.Path = relativePath;
+                expense.ReceiptPhoto = receiptPhoto;
+            }
+
+            if (ModelState.IsValid)
+            {
+                _context.Update(expense);
+                await _context.SaveChangesAsync();
+            }
+            
+            return RedirectToAction("Details", new { id = expenseId });
         }
 
         private bool ExpenseExists(int id)

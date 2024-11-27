@@ -10,13 +10,19 @@
     <div class="d-flex flex-column">
         @foreach (var expense in Model.Expenses)
         {
-            <a asp-controller="Expense" asp-action="Details" asp-route-id="@expense.Id" class="d-block d-flex flex-row justify-content-between align-items-center w-100 py-3 px-2 bg-light border rounded text-decoration-none text-black mb-2">
-                <div class="d-flex flex-column">
-                    <p class="mb-0">@expense.Title, @expense.Date.ToString("dd/MM/yyyy")</p>
-                    <p class="mb-0">@expense.Amount zł</p>
+            <div class="row rounded bg-light mb-2">
+                <div class="col-11 p-2">
+                    <a asp-controller="Expense" asp-action="Details" asp-route-id="@expense.Id" class="d-block text-decoration-none text-black">
+                        <h6 class="mb-0">@expense.Title, @expense.Date.ToString("dd/MM/yyyy")</h6>
+                        <p class="mb-0">@expense.Amount zł</p>
+                    </a>
                 </div>
-                <div>Zdjęcie</div>
-            </a>
+                <div class="col p-2 bg-danger rounded-end d-flex justify-content-center align-items-center">
+                    <a asp-action="Delete" asp-route-id="@expense.Id" class="d-block w-100 h-100 text-decoration-none text-black d-flex align-items-center justify-content-center">
+                        <i class="bi bi-trash3-fill"></i>
+                    </a>
+                </div>
+            </div>
         }
     </div>
 </div>
