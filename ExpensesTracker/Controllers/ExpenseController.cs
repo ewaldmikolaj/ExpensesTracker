@@ -26,7 +26,10 @@ namespace ExpensesTracker.Controllers
         // GET: Expense
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Expense.Include(e => e.Payer);
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var applicationDbContext = _context.Expense
+                .Include(e => e.Payer)
+                .Where(e => e.PayerId == userId);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -38,10 +41,12 @@ namespace ExpensesTracker.Controllers
                 return NotFound();
             }
 
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var expense = await _context.Expense
                 .Include(e => e.Payer)
                 .Include(e => e.ReceiptPhoto)
                 .Include(e => e.List)
+                .Where(e => e.PayerId == userId)
                 .FirstOrDefaultAsync(m => m.Id == id);
             
             if (expense == null)
@@ -114,6 +119,7 @@ namespace ExpensesTracker.Controllers
                 .Include(e => e.Payer)
                 .Include(e => e.ReceiptPhoto)
                 .Include(e => e.List)
+                .Where(e => e.PayerId == userId)
                 .FirstOrDefaultAsync(m => m.Id == id);
             
             if (expense == null)
@@ -132,20 +138,36 @@ namespace ExpensesTracker.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Date,Amount,PayerId,ReceiptPhotoId,ListId")] Expense expense)
+        public async Task<IActionResult> Edit(int id, Expense expense)
         {
+            
             if (id != expense.Id)
             {
                 return NotFound();
             }
             
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
+            
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(expense);
+                    var existingExpense = await _context.Expense
+                        .Include(e => e.ReceiptPhoto)
+                        .Where(e => e.PayerId == userId)
+                        .FirstOrDefaultAsync(e => e.Id == expense.Id);
+
+                    if (existingExpense == null)
+                    {
+                        return NotFound();
+                    }
+                    
+                    existingExpense.Title = expense.Title;
+                    existingExpense.Date = expense.Date;
+                    existingExpense.Amount = expense.Amount;
+                    existingExpense.ListId = expense.ListId;
+                    
+                    _context.Update(existingExpense);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -177,10 +199,12 @@ namespace ExpensesTracker.Controllers
                 return NotFound();
             }
 
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var expense = await _context.Expense
                 .Include(e => e.Payer)
                 .Include(e => e.ReceiptPhoto)
                 .Include(e => e.List)
+                .Where(e => e.PayerId == userId)
                 .FirstOrDefaultAsync(m => m.Id == id);
             
             if (expense == null)
@@ -196,12 +220,15 @@ namespace ExpensesTracker.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var expense = await _context.Expense.FindAsync(id);
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var expense = await _context.Expense
+                .Where(e => e.PayerId == userId)
+                .FirstOrDefaultAsync(e => e.Id == id);
+            
             if (expense != null)
             {
                 _context.Expense.Remove(expense);
             }
-
             await _context.SaveChangesAsync();
             
             return RedirectToAction(nameof(Index));
@@ -212,8 +239,10 @@ namespace ExpensesTracker.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteReceiptPhoto(int expenseId)
         {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var expense = await _context.Expense
                 .Include(e => e.ReceiptPhoto)
+                .Where(e => e.PayerId == userId)
                 .FirstOrDefaultAsync(e => e.Id == expenseId);
             
             if (expense == null)
@@ -241,7 +270,10 @@ namespace ExpensesTracker.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddReceiptPhoto(int expenseId, IFormFile? photo)
         {
-            var expense = await _context.Expense.FindAsync(expenseId);
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var expense = await _context.Expense
+                .Where(e => e.PayerId == userId)
+                .FirstOrDefaultAsync(e => e.Id == expenseId);
             
             if (expense == null)
             {
