@@ -6,6 +6,6 @@ public class List
 	public string Name { get; set; }
 	public bool IsPublic { get; set; }
 	public string? PublicUrl { get; set; }
-	public string OwnerId {get; set;}
+	public string? OwnerId {get; set;}
 	public virtual ApplicationUser? Owner { get; set; }
 }

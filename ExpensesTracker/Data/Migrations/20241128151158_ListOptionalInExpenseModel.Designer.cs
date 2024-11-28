@@ -3,6 +3,7 @@ using System;
 using ExpensesTracker.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ExpensesTracker.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241128151158_ListOptionalInExpenseModel")]
+    partial class ListOptionalInExpenseModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
@@ -139,6 +142,7 @@ namespace ExpensesTracker.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("OwnerId")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("PublicUrl")
@@ -161,6 +165,7 @@ namespace ExpensesTracker.Data.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -322,8 +327,7 @@ namespace ExpensesTracker.Data.Migrations
                 {
                     b.HasOne("ExpensesTracker.Models.List", "List")
                         .WithMany()
-                        .HasForeignKey("ListId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("ListId");
 
                     b.HasOne("ExpensesTracker.Models.ApplicationUser", "Payer")
                         .WithMany()
@@ -344,7 +348,9 @@ namespace ExpensesTracker.Data.Migrations
                 {
                     b.HasOne("ExpensesTracker.Models.ApplicationUser", "Owner")
                         .WithMany()
-                        .HasForeignKey("OwnerId");
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Owner");
                 });
@@ -359,7 +365,9 @@ namespace ExpensesTracker.Data.Migrations
 
                     b.HasOne("ExpensesTracker.Models.ApplicationUser", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("List");
 

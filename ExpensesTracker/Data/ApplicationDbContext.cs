@@ -11,6 +11,17 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 	{
 	}
 
+	protected override void OnModelCreating(ModelBuilder builder)
+	{
+		base.OnModelCreating(builder);
+		
+		builder.Entity<Expense>()
+			.HasOne(e => e.List)
+			.WithMany()
+			.HasForeignKey(e => e.ListId)
+			.OnDelete(DeleteBehavior.SetNull);
+	}
+
 	public DbSet<ExpensesTracker.Models.List> List { get; set; } = default!;
 
 	public DbSet<ExpensesTracker.Models.Expense> Expense { get; set; } = default!;
