@@ -4,7 +4,7 @@
     ViewData["Title"] = "Details";
 }
 
-<div class="d-flex flex-column" xmlns="http://www.w3.org/1999/html">
+<div class="d-flex flex-column">
     <div class="d-flex flex-row justify-content-between align-items-center">
         <h4 class="mb-0">@Html.DisplayFor(model => model.Title)</h4>
         <div class="d-flex flex-row gap-2">
@@ -21,7 +21,7 @@
     </div>
     <hr/>
     <div class="row">
-        <div class="col-7">
+        <div class="col-6">
             <dl class="row">
                 <dd class="col-sm-2">
                     @Html.DisplayNameFor(model => model.Date)
@@ -49,29 +49,10 @@
                 </dt>
             </dl>
         </div>
-        <div class="col-5 position-relative">
+        <div class="col-6">
             @if (Model.ReceiptPhoto != null)
             {
                 <img class="img-fluid" src="@Model.ReceiptPhoto.Path" alt="Zdjęcie paragonu"/>
-                <div class="position-absolute top-0 end-0 mt-1 me-4">
-                    <form asp-action="DeleteReceiptPhoto" asp-route-expenseId="@Model.Id" method="post">
-                        <button type="submit" class="">
-                            <i class="bi bi-x-circle-fill text-white h3"></i>
-                        </button>
-                    </form>
-                </div>
-            }
-            else
-            {
-                <div class="d-flex w-100 h-100 justify-content-center align-items-center">
-                    <form asp-action="AddReceiptPhoto" asp-route-expenseId="@Model.Id" method="post" enctype="multipart/form-data">
-                        <div class="form-group mb-2">
-                            <input name="photo" type="file" class="form-control"/>
-                            <span asp-validation-for="@Model.ReceiptPhoto.Photo" class="text-danger"></span>
-                            <input type="submit" value="Dodaj zdjęcie" class="btn btn-primary mt-2" />
-                        </div>
-                    </form>
-                </div>
             }
         </div>
     </div>

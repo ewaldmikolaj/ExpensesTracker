@@ -60,6 +60,7 @@ namespace ExpensesTracker.Controllers
             var lists = _context.List.Include(l => l.Owner)
                 .Where(l => l.OwnerId == userId);
             ViewData["ListId"] = new SelectList(lists, "Id", "Name");
+            
             return View();
         }
 
@@ -96,6 +97,7 @@ namespace ExpensesTracker.Controllers
             var lists = _context.List.Include(l => l.Owner)
                 .Where(l => l.OwnerId == userId);
             ViewData["ListId"] = new SelectList(lists, "Id", "Name");
+            
             return View(expense);
         }
 
@@ -106,13 +108,22 @@ namespace ExpensesTracker.Controllers
             {
                 return NotFound();
             }
-
-            var expense = await _context.Expense.FindAsync(id);
+            
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var expense = await _context.Expense
+                .Include(e => e.Payer)
+                .Include(e => e.ReceiptPhoto)
+                .Include(e => e.List)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            
             if (expense == null)
             {
                 return NotFound();
             }
-            ViewData["PayerId"] = new SelectList(_context.Users, "Id", "Id", expense.PayerId);
+            
+            var lists = _context.List.Include(l => l.Owner)
+                .Where(l => l.OwnerId == userId);
+            ViewData["ListId"] = new SelectList(lists, "Id", "Name");
             return View(expense);
         }
 
@@ -127,6 +138,8 @@ namespace ExpensesTracker.Controllers
             {
                 return NotFound();
             }
+            
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (ModelState.IsValid)
             {
@@ -148,7 +161,11 @@ namespace ExpensesTracker.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["PayerId"] = new SelectList(_context.Users, "Id", "Id", expense.PayerId);
+            
+            var lists = _context.List.Include(l => l.Owner)
+                .Where(l => l.OwnerId == userId);
+            ViewData["ListId"] = new SelectList(lists, "Id", "Name");
+            
             return View(expense);
         }
 
@@ -162,7 +179,10 @@ namespace ExpensesTracker.Controllers
 
             var expense = await _context.Expense
                 .Include(e => e.Payer)
+                .Include(e => e.ReceiptPhoto)
+                .Include(e => e.List)
                 .FirstOrDefaultAsync(m => m.Id == id);
+            
             if (expense == null)
             {
                 return NotFound();
@@ -183,6 +203,7 @@ namespace ExpensesTracker.Controllers
             }
 
             await _context.SaveChangesAsync();
+            
             return RedirectToAction(nameof(Index));
         }
         
@@ -194,7 +215,6 @@ namespace ExpensesTracker.Controllers
             var expense = await _context.Expense
                 .Include(e => e.ReceiptPhoto)
                 .FirstOrDefaultAsync(e => e.Id == expenseId);
-            Console.WriteLine(expense.ToJson());
             
             if (expense == null)
             {
@@ -214,7 +234,7 @@ namespace ExpensesTracker.Controllers
                 await _context.SaveChangesAsync();
             }
             
-            return RedirectToAction("Details", new { id = expenseId });
+            return RedirectToAction("Edit", new { id = expenseId });
         }
 
         [HttpPost, ActionName("AddReceiptPhoto")]
@@ -227,8 +247,7 @@ namespace ExpensesTracker.Controllers
             {
                 return NotFound();
             }
-
-            Console.WriteLine(photo.Length);
+            
             if (photo != null && photo.Length > 0)
             {
                 var fileExtension = Path.GetExtension(photo.FileName);
@@ -250,7 +269,7 @@ namespace ExpensesTracker.Controllers
                 await _context.SaveChangesAsync();
             }
             
-            return RedirectToAction("Details", new { id = expenseId });
+            return RedirectToAction("Edit", new { id = expenseId });
         }
 
         private bool ExpenseExists(int id)
