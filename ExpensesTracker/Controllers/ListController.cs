@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -24,7 +25,11 @@ namespace ExpensesTracker
         // GET: List
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.List.Include(l => l.Owner);
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var applicationDbContext = _context.List
+                .Include(l => l.Owner)
+                .Where(l => l.OwnerId == userId);
+            
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -36,8 +41,10 @@ namespace ExpensesTracker
                 return NotFound();
             }
 
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var list = await _context.List
                 .Include(l => l.Owner)
+                .Where(l => l.OwnerId == userId)
                 .FirstOrDefaultAsync(m => m.Id == id);
             
             if (list == null)
@@ -61,7 +68,6 @@ namespace ExpensesTracker
         // GET: List/Create
         public IActionResult Create()
         {
-            ViewData["OwnerId"] = new SelectList(_context.Users, "Id", "Id");
             return View();
         }
 
@@ -70,32 +76,41 @@ namespace ExpensesTracker
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,IsPublic,PublicUrl,OwnerId")] List list)
+        public async Task<IActionResult> Create(List list)
         {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            list.OwnerId = userId;
+            
             if (ModelState.IsValid)
             {
                 _context.Add(list);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["OwnerId"] = new SelectList(_context.Users, "Id", "Id", list.OwnerId);
+            
             return View(list);
         }
 
         // GET: List/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            
             if (id == null)
             {
                 return NotFound();
             }
 
-            var list = await _context.List.FindAsync(id);
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var list = await _context.List
+                .Include(l => l.Owner)
+                .Where(l => l.OwnerId == userId)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            
             if (list == null)
             {
                 return NotFound();
             }
-            ViewData["OwnerId"] = new SelectList(_context.Users, "Id", "Id", list.OwnerId);
+            
             return View(list);
         }
 
@@ -104,18 +119,34 @@ namespace ExpensesTracker
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,IsPublic,PublicUrl,OwnerId")] List list)
+        public async Task<IActionResult> Edit(int id, List list)
         {
             if (id != list.Id)
             {
                 return NotFound();
             }
+            
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(list);
+                    var existingList = await _context.List
+                        .Include(l => l.Owner)
+                        .Where(l => l.OwnerId == userId)
+                        .FirstOrDefaultAsync(m => m.Id == id);
+
+                    if (existingList == null)
+                    {
+                        return NotFound();
+                    }
+                    
+                    existingList.Name = list.Name;
+                    existingList.IsPublic = list.IsPublic;
+                    existingList.PublicUrl = list.PublicUrl;
+                    
+                    _context.Update(existingList);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -131,7 +162,7 @@ namespace ExpensesTracker
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["OwnerId"] = new SelectList(_context.Users, "Id", "Id", list.OwnerId);
+
             return View(list);
         }
 
@@ -146,6 +177,7 @@ namespace ExpensesTracker
             var list = await _context.List
                 .Include(l => l.Owner)
                 .FirstOrDefaultAsync(m => m.Id == id);
+            
             if (list == null)
             {
                 return NotFound();
@@ -159,13 +191,18 @@ namespace ExpensesTracker
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var list = await _context.List.FindAsync(id);
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var list = await _context.List
+                .Include(l => l.Owner)
+                .Where(l => l.OwnerId == userId)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            
             if (list != null)
             {
                 _context.List.Remove(list);
             }
-
             await _context.SaveChangesAsync();
+            
             return RedirectToAction(nameof(Index));
         }
 
