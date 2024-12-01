@@ -18,6 +18,9 @@
             <a asp-controller="Expense" asp-action="Create">
                 <button class="btn btn-info text-white">Stwórz nowy wydatek</button>
             </a>
+            <a asp-route="ListShare" asp-route-listId="@Model.List.Id">
+                <button class="btn btn-info text-white">Udostępnij</button>
+            </a>
             <a asp-action="Edit" asp-route-id="@Model?.List.Id">
                 <button class="btn btn-primary">Edytuj</button>
             </a>
@@ -33,13 +36,13 @@
     <div class="d-flex flex-column">
         @foreach (var expense in Model.Expenses)
         {
-            <div class="row rounded bg-light mb-2">
+            <div class="row rounded bg-light m-0 mb-2">
                 <div class="col-12 p-2">
                     <a asp-controller="Expense" asp-action="Details" asp-route-id="@expense.Id" class="d-block text-decoration-none text-black">
                         <h6 class="mb-0">@expense.Title, @expense.Date.ToString("dd/MM/yyyy")</h6>
                         <p class="mb-0">@expense.Amount zł</p>
                     </a>
-                </div>
+                 </div>
             </div>
         }
     </div>

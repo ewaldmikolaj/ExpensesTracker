@@ -40,6 +40,10 @@ app.UseAuthorization();
 app.MapControllerRoute(
 	name: "default",
 	pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapControllerRoute(
+	name: "ListShare",
+	pattern: "List/Shares/{listId}",
+	defaults: new { controller = "ListShare", action = "Index" });
 app.MapRazorPages();
 
 app.Run();

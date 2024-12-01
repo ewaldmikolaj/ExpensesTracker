@@ -157,7 +157,7 @@ namespace ExpensesTracker.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("ListId")
+                    b.Property<int?>("ListId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("UserId")
@@ -353,9 +353,7 @@ namespace ExpensesTracker.Data.Migrations
                 {
                     b.HasOne("ExpensesTracker.Models.List", "List")
                         .WithMany()
-                        .HasForeignKey("ListId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ListId");
 
                     b.HasOne("ExpensesTracker.Models.ApplicationUser", "User")
                         .WithMany()

@@ -16,7 +16,7 @@
     </div>
     @foreach (var item in Model) 
     {
-        <div class="row rounded bg-light mb-2">
+        <div class="row rounded bg-light m-0 mb-2">
             <div class="col-11 p-2">
                 <a asp-action="Details" asp-route-id="@item.Id" class="d-block text-decoration-none text-black">
                     <p class="m-0">@Html.DisplayFor(modelItem => item.Name)</p>

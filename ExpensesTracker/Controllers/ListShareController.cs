@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using ExpensesTracker.Data;
 using ExpensesTracker.Models;
 using Microsoft.AspNetCore.Authorization;
+using NuGet.Protocol;
 
 namespace ExpensesTracker.Controllers
 {
@@ -22,36 +23,26 @@ namespace ExpensesTracker.Controllers
         }
 
         // GET: ListShare
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index([FromRoute] int listId)
         {
-            var applicationDbContext = _context.ListShare.Include(l => l.User);
-            return View(await applicationDbContext.ToListAsync());
-        }
-
-        // GET: ListShare/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
+            var list = await _context.List.FindAsync(listId);
+            if (list == null)
             {
                 return NotFound();
             }
-
-            var listShare = await _context.ListShare
+            
+            var listShares = await _context.ListShare
                 .Include(l => l.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (listShare == null)
+                .Where(l => l.ListId == listId)
+                .ToListAsync();
+
+            var listShareViewModel = new ListSharesViewModel
             {
-                return NotFound();
-            }
-
-            return View(listShare);
-        }
-
-        // GET: ListShare/Create
-        public IActionResult Create()
-        {
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id");
-            return View();
+                List = list,
+                ListShares = listShares
+            };
+            
+            return View(listShareViewModel);
         }
 
         // POST: ListShare/Create
@@ -59,33 +50,30 @@ namespace ExpensesTracker.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,ListName,UserId")] ListShare listShare)
+        public async Task<IActionResult> Create(int listId, string userEmail)
         {
+            var list = await _context.List.FindAsync(listId);
+            var user = _context.Users.FirstOrDefault(u => u.Email == userEmail);
+            
+            if (list == null || user == null)
+            {
+                return NotFound();
+            }
+
+            var listShare = new ListShare
+            {
+                ListId = list.Id,
+                UserId = user.Id,
+            };
+            
             if (ModelState.IsValid)
             {
                 _context.Add(listShare);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToRoute("ListShare", new { listId = list.Id });
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", listShare.UserId);
-            return View(listShare);
-        }
-
-        // GET: ListShare/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var listShare = await _context.ListShare.FindAsync(id);
-            if (listShare == null)
-            {
-                return NotFound();
-            }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", listShare.UserId);
-            return View(listShare);
+            
+            return RedirectToRoute("ListShare", new { listId = list.Id });
         }
 
         // POST: ListShare/Edit/5
@@ -124,38 +112,20 @@ namespace ExpensesTracker.Controllers
             return View(listShare);
         }
 
-        // GET: ListShare/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var listShare = await _context.ListShare
-                .Include(l => l.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (listShare == null)
-            {
-                return NotFound();
-            }
-
-            return View(listShare);
-        }
-
         // POST: ListShare/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Delete(int id, int listId)
         {
             var listShare = await _context.ListShare.FindAsync(id);
+            
             if (listShare != null)
             {
                 _context.ListShare.Remove(listShare);
             }
 
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToRoute("ListShare", new { listId = listId });
         }
 
         private bool ListShareExists(int id)
