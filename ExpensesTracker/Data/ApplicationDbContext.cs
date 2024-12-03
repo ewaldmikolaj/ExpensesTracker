@@ -20,6 +20,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 			.WithMany()
 			.HasForeignKey(e => e.ListId)
 			.OnDelete(DeleteBehavior.SetNull);
+		
+		builder.Entity<ListShare>()
+			.HasIndex(ls => new {ls.ListId, ls.UserId})
+			.IsUnique();
 	}
 
 	public DbSet<ExpensesTracker.Models.List> List { get; set; } = default!;

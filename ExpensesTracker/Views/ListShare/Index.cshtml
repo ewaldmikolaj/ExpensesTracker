@@ -15,6 +15,7 @@
         <form asp-controller="ListShare" asp-action="Create" asp-route-listId="@Model.List.Id" method="post" class="d-flex flex-row gap-2">
             <div class="form-group">
                 <input type="email" name="userEmail" class="form-control" placeholder="Email"/>
+                @Html.ValidationMessage("userEmail", new { @class = "text-danger" })
             </div>
             <div class="form-group">
                 <input type="submit" value="Dodaj" class="btn btn-primary" />

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -8,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using ExpensesTracker.Data;
 using ExpensesTracker.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Data.SqlClient;
 using NuGet.Protocol;
 
 namespace ExpensesTracker.Controllers
@@ -16,31 +19,36 @@ namespace ExpensesTracker.Controllers
     public class ListShareController : Controller
     {
         private readonly ApplicationDbContext _context;
-
+        
         public ListShareController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: ListShare
-        public async Task<IActionResult> Index([FromRoute] int listId)
+        private async Task<ListSharesViewModel?> CreateListShareViewModel(int listId)
         {
             var list = await _context.List.FindAsync(listId);
-            if (list == null)
-            {
-                return NotFound();
-            }
-            
+            if (list == null) return null;
             var listShares = await _context.ListShare
                 .Include(l => l.User)
                 .Where(l => l.ListId == listId)
                 .ToListAsync();
 
-            var listShareViewModel = new ListSharesViewModel
+            return new ListSharesViewModel
             {
                 List = list,
                 ListShares = listShares
             };
+        }
+
+        // GET: ListShare
+        public async Task<IActionResult> Index([FromRoute] int listId)
+        {
+            var listShareViewModel = await CreateListShareViewModel(listId);
+            if (listShareViewModel == null)
+            {
+                return NotFound();
+            }
             
             return View(listShareViewModel);
         }
@@ -52,12 +60,23 @@ namespace ExpensesTracker.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(int listId, string userEmail)
         {
+            var currentUser = User.FindFirstValue(ClaimTypes.NameIdentifier); 
             var list = await _context.List.FindAsync(listId);
             var user = _context.Users.FirstOrDefault(u => u.Email == userEmail);
             
             if (list == null || user == null)
             {
                 return NotFound();
+            }
+
+            if (currentUser != list.OwnerId)
+            {
+                return Unauthorized();
+            }
+            
+            if (user.Id == list.OwnerId)
+            {
+                ModelState.AddModelError("userEmail", "Nie można udostępnić listy jej właścicielowi");
             }
 
             var listShare = new ListShare
@@ -68,48 +87,20 @@ namespace ExpensesTracker.Controllers
             
             if (ModelState.IsValid)
             {
-                _context.Add(listShare);
-                await _context.SaveChangesAsync();
-                return RedirectToRoute("ListShare", new { listId = list.Id });
-            }
-            
-            return RedirectToRoute("ListShare", new { listId = list.Id });
-        }
-
-        // POST: ListShare/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,ListName,UserId")] ListShare listShare)
-        {
-            if (id != listShare.Id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
                 try
                 {
-                    _context.Update(listShare);
+                    _context.Add(listShare);
                     await _context.SaveChangesAsync();
+                    return RedirectToRoute("ListShare", new { listId = list.Id });
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateException exception)
                 {
-                    if (!ListShareExists(listShare.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    ModelState.AddModelError("userEmail", "Podany email posiada już dostęp do listy");
                 }
-                return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", listShare.UserId);
-            return View(listShare);
+            
+            var viewModel = await CreateListShareViewModel(listId);
+            return View("Index", viewModel);
         }
 
         // POST: ListShare/Delete/5

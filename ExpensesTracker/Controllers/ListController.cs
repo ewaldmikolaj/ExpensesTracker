@@ -22,15 +22,26 @@ namespace ExpensesTracker
             _context = context;
         }
 
+        private async Task<List<List>> GetAvailableLists()
+        {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var ownedLists = await _context.List
+                .Where(l => l.OwnerId == userId)
+                .ToListAsync();
+            var sharedLists = await _context.ListShare
+                .Include(ls => ls.List)
+                .Where(ls => ls.UserId == userId)
+                .Select(ls => ls.List)
+                .ToListAsync();
+            ownedLists.AddRange(sharedLists);
+            
+            return ownedLists;
+        }
+
         // GET: List
         public async Task<IActionResult> Index()
         {
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var applicationDbContext = _context.List
-                .Include(l => l.Owner)
-                .Where(l => l.OwnerId == userId);
-            
-            return View(await applicationDbContext.ToListAsync());
+            return View(await GetAvailableLists());
         }
 
         // GET: List/Details/5
