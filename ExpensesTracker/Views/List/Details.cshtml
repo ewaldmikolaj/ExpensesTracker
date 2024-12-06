@@ -18,15 +18,18 @@
             <a asp-controller="Expense" asp-action="Create">
                 <button class="btn btn-info text-white">Stwórz nowy wydatek</button>
             </a>
-            <a asp-route="ListShare" asp-route-listId="@Model.List.Id">
-                <button class="btn btn-info text-white">Udostępnij</button>
-            </a>
-            <a asp-action="Edit" asp-route-id="@Model?.List.Id">
-                <button class="btn btn-primary">Edytuj</button>
-            </a>
-            <a asp-action="Delete" asp-route-id="@Model?.List.Id">
-                <button class="btn btn-danger">Usuń</button>
-            </a>
+            @if (@Model.UserId == @Model.List.OwnerId)
+            {
+                <a asp-route="ListShare" asp-route-listId="@Model.List.Id">
+                    <button class="btn btn-info text-white">Udostępnij</button>
+                </a>
+                <a asp-action="Edit" asp-route-id="@Model?.List.Id">
+                    <button class="btn btn-primary">Edytuj</button>
+                </a>
+                <a asp-action="Delete" asp-route-id="@Model?.List.Id">
+                    <button class="btn btn-danger">Usuń</button>
+                </a>
+            }
             <a asp-action="Index">
                 <button class="btn btn-dark">Powrót</button>
             </a>

@@ -22,7 +22,7 @@ namespace ExpensesTracker
             _context = context;
         }
 
-        private async Task<List<List>> GetAvailableLists()
+        private async Task<ListsViewModel> GetAvailableLists()
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var ownedLists = await _context.List
@@ -33,9 +33,13 @@ namespace ExpensesTracker
                 .Where(ls => ls.UserId == userId)
                 .Select(ls => ls.List)
                 .ToListAsync();
-            ownedLists.AddRange(sharedLists);
+            var lists = new ListsViewModel
+            {
+                OwnedLists = ownedLists,
+                SharedLists = sharedLists
+            };
             
-            return ownedLists;
+            return lists;
         }
 
         // GET: List
@@ -51,18 +55,17 @@ namespace ExpensesTracker
             {
                 return NotFound();
             }
-
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var list = await _context.List
-                .Include(l => l.Owner)
-                .Where(l => l.OwnerId == userId)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            
+            var availableLists = await GetAvailableLists();
+            var list = availableLists.OwnedLists?.FirstOrDefault(ls => ls.Id == id) ??
+                       availableLists.SharedLists?.FirstOrDefault(ls => ls.Id == id);
             
             if (list == null)
             {
                 return NotFound();
             }
             
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var expenses = await _context.Expense
                 .Where(e => e.ListId == id)
                 .ToListAsync();
@@ -70,6 +73,7 @@ namespace ExpensesTracker
             var expensesList = new ExpensesListViewModel
             {
                 List = list,
+                UserId = userId,
                 Expenses = expenses
             };
 

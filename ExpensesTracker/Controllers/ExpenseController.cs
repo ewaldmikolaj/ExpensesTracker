@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using ExpensesTracker.Data;
 using ExpensesTracker.Models;
 using Microsoft.AspNetCore.Authorization;
+using NuGet.Packaging;
 using NuGet.Protocol;
 
 namespace ExpensesTracker.Controllers
@@ -21,6 +22,22 @@ namespace ExpensesTracker.Controllers
         public ExpenseController(ApplicationDbContext context)
         {
             _context = context;
+        }
+        
+        private async Task<List<List>> GetAvailableLists()
+        {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var ownedLists = await _context.List
+                .Where(l => l.OwnerId == userId)
+                .ToListAsync();
+            var sharedLists = await _context.ListShare
+                .Include(ls => ls.List)
+                .Where(ls => ls.UserId == userId)
+                .Select(ls => ls.List)
+                .ToListAsync();
+            ownedLists.AddRange(sharedLists);
+            
+            return ownedLists;
         }
 
         // GET: Expense
@@ -46,24 +63,28 @@ namespace ExpensesTracker.Controllers
                 .Include(e => e.Payer)
                 .Include(e => e.ReceiptPhoto)
                 .Include(e => e.List)
-                .Where(e => e.PayerId == userId)
                 .FirstOrDefaultAsync(m => m.Id == id);
             
             if (expense == null)
             {
                 return NotFound();
             }
-
+            
+            var share = await _context.ListShare.AnyAsync(ls => ls.ListId == expense.ListId && ls.UserId == userId); ;
+            if (expense.PayerId != userId && !share && (expense.List != null && expense.List.OwnerId != userId))
+            {
+                return NotFound();
+            }
+            ViewBag.UserId = userId;
+            
             return View(expense);
         }
 
         // GET: Expense/Create
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var lists = _context.List.Include(l => l.Owner)
-                .Where(l => l.OwnerId == userId);
+            var lists = await GetAvailableLists();
             ViewData["ListId"] = new SelectList(lists, "Id", "Name");
             
             return View();

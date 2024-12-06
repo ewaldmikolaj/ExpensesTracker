@@ -1,4 +1,4 @@
-@model IEnumerable<ExpensesTracker.Models.List>
+@model ExpensesTracker.Models.ListsViewModel
 
 @{
     ViewData["Title"] = "Listy";
@@ -14,7 +14,8 @@
             </button>
         </a>
     </div>
-    @foreach (var item in Model) 
+    <h6>Twoje listy</h6>
+    @foreach (var item in Model.OwnedLists) 
     {
         <div class="row rounded bg-light m-0 mb-2">
             <div class="col-11 p-2">
@@ -25,6 +26,17 @@
             <div class="col-1 p-0 bg-danger rounded-end d-flex justify-content-center align-items-center">
                 <a asp-action="Delete" asp-route-id="@item.Id" class="d-block w-100 h-100 text-decoration-none text-black d-flex align-items-center justify-content-center">
                     <i class="bi bi-trash3-fill text-white"></i>
+                </a>
+            </div>
+        </div>
+    }
+    <h6>Udostępnione listy</h6>
+    @foreach (var item in Model.SharedLists)
+    {
+        <div class="row rounded bg-light m-0 mb-2">
+            <div class="col-11 p-2">
+                <a asp-action="Details" asp-route-id="@item.Id" class="d-block text-decoration-none text-black">
+                    <p class="m-0">@Html.DisplayFor(modelItem => item.Name)</p>
                 </a>
             </div>
         </div>
