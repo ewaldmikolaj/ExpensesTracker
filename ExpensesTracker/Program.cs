@@ -47,3 +47,7 @@ app.MapControllerRoute(
 app.MapRazorPages();
 
 app.Run();
+
+// TODO: Fix Powrót Button
+// TODO: Improve design
+// TODO: Remove fields related to public sharing

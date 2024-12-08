@@ -14,7 +14,10 @@
             </button>
         </a>
     </div>
-    <h6>Twoje listy</h6>
+    @if (Model.OwnedLists.Count != 0)
+    {
+        <h6>Twoje listy</h6>
+    }
     @foreach (var item in Model.OwnedLists) 
     {
         <div class="row rounded bg-light m-0 mb-2">
@@ -30,7 +33,10 @@
             </div>
         </div>
     }
-    <h6>Udostępnione listy</h6>
+    @if (Model.SharedLists.Count != 0)
+    {
+        <h6>Udostępnione listy</h6>
+    }
     @foreach (var item in Model.SharedLists)
     {
         <div class="row rounded bg-light m-0 mb-2">

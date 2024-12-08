@@ -76,6 +76,7 @@ namespace ExpensesTracker.Controllers
                 return NotFound();
             }
             ViewBag.UserId = userId;
+            ViewBag.PreviousUrl = HttpContext.Request.Headers["Referer"].ToString();
             
             return View(expense);
         }

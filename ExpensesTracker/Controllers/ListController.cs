@@ -38,7 +38,7 @@ namespace ExpensesTracker
                 OwnedLists = ownedLists,
                 SharedLists = sharedLists
             };
-            
+            Console.WriteLine(lists.SharedLists.Count);
             return lists;
         }
 
@@ -158,8 +158,6 @@ namespace ExpensesTracker
                     }
                     
                     existingList.Name = list.Name;
-                    existingList.IsPublic = list.IsPublic;
-                    existingList.PublicUrl = list.PublicUrl;
                     
                     _context.Update(existingList);
                     await _context.SaveChangesAsync();
