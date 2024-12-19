@@ -33,12 +33,12 @@ namespace ExpensesTracker
                 .Where(ls => ls.UserId == userId)
                 .Select(ls => ls.List)
                 .ToListAsync();
+            
             var lists = new ListsViewModel
             {
                 OwnedLists = ownedLists,
                 SharedLists = sharedLists
             };
-            Console.WriteLine(lists.SharedLists.Count);
             return lists;
         }
 

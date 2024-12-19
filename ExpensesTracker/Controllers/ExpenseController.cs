@@ -86,7 +86,7 @@ namespace ExpensesTracker.Controllers
         public async Task<IActionResult> Create()
         {
             var lists = await GetAvailableLists();
-            ViewData["ListId"] = new SelectList(lists, "Id", "Name");
+            ViewData["ListId"] = new SelectList(lists, "Id", "Name", null);
             
             return View();
         }
@@ -120,10 +120,9 @@ namespace ExpensesTracker.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-                
-            var lists = _context.List.Include(l => l.Owner)
-                .Where(l => l.OwnerId == userId);
-            ViewData["ListId"] = new SelectList(lists, "Id", "Name");
+
+            var lists = await GetAvailableLists();
+            ViewData["ListId"] = new SelectList(lists, "Id", "Name", null);
             
             return View(expense);
         }
@@ -149,9 +148,8 @@ namespace ExpensesTracker.Controllers
                 return NotFound();
             }
             
-            var lists = _context.List.Include(l => l.Owner)
-                .Where(l => l.OwnerId == userId);
-            ViewData["ListId"] = new SelectList(lists, "Id", "Name");
+            var lists = await GetAvailableLists();
+            ViewData["ListId"] = new SelectList(lists, "Id", "Name", null);
             return View(expense);
         }
 
@@ -208,7 +206,7 @@ namespace ExpensesTracker.Controllers
             
             var lists = _context.List.Include(l => l.Owner)
                 .Where(l => l.OwnerId == userId);
-            ViewData["ListId"] = new SelectList(lists, "Id", "Name");
+            ViewData["ListId"] = new SelectList(lists, "Id", "Name", null);
             
             return View(expense);
         }

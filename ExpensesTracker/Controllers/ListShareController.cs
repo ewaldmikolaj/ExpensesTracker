@@ -112,7 +112,16 @@ namespace ExpensesTracker.Controllers
             
             if (listShare != null)
             {
+                var expenses = await _context.Expense
+                    .Where(e => e.ListId == listId && e.PayerId == listShare.UserId)
+                    .ToListAsync();
+                foreach (var expense in expenses)
+                {
+                    expense.ListId = null;
+                }
+                
                 _context.ListShare.Remove(listShare);
+                await _context.SaveChangesAsync();
             }
 
             await _context.SaveChangesAsync();

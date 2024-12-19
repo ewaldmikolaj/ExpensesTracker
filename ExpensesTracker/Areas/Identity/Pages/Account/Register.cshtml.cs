@@ -75,17 +75,17 @@ namespace ExpensesTracker.Areas.Identity.Pages.Account
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            [Required]
-            [EmailAddress]
+            [Required(ErrorMessage = "Email jest wymagany.")]
+            [EmailAddress(ErrorMessage = "Podaj poprawny adres email.")]
             [Display(Name = "Email")]
             public string Email { get; set; }
 
-            [Required]
+            [Required(ErrorMessage = "{0} jest wymagane.")]
             [StringLength(30, ErrorMessage = "{0} musi mieć minimum {2} znaki, a maksymalnie {1}.", MinimumLength = 3)]
             [Display(Name = "Imię")]
             public string Name { get; set; }
             
-            [Required]
+            [Required(ErrorMessage = "{0} jest wymagane.")]
             [StringLength(50, ErrorMessage = "{0} musi mieć minimum {2} znaki, a maksymalnie {1}.", MinimumLength = 3)]
             [Display(Name = "Nazwisko")]
             public string Surname { get; set; }
@@ -94,7 +94,7 @@ namespace ExpensesTracker.Areas.Identity.Pages.Account
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            [Required]
+            [Required(ErrorMessage = "{0} jest wymagane.")]
             [StringLength(100, ErrorMessage = "{0} musi mieć minimum {2} znaki, a maksymalnie {1}.", MinimumLength = 6)]
             [DataType(DataType.Password)]
             [Display(Name = "Hasło")]
