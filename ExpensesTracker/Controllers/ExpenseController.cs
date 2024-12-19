@@ -40,6 +40,16 @@ namespace ExpensesTracker.Controllers
             return ownedLists;
         }
 
+        private string GetReturnUrl()
+        {
+            string? returnUrl = HttpContext.Session.GetString("ReturnUrl");
+            if (string.IsNullOrEmpty(returnUrl))
+            {
+                return Url.Action("Index", "Expense");
+            }
+            return returnUrl;
+        }
+
         // GET: Expense
         public async Task<IActionResult> Index()
         {
@@ -47,6 +57,9 @@ namespace ExpensesTracker.Controllers
             var applicationDbContext = _context.Expense
                 .Include(e => e.Payer)
                 .Where(e => e.PayerId == userId);
+            
+            HttpContext.Session.SetString("ReturnUrl", HttpContext.Request.Path);
+            
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -76,7 +89,7 @@ namespace ExpensesTracker.Controllers
                 return NotFound();
             }
             ViewBag.UserId = userId;
-            ViewBag.PreviousUrl = HttpContext.Request.Headers["Referer"].ToString();
+            ViewBag.ReturnUrl = GetReturnUrl();
             
             return View(expense);
         }
@@ -87,6 +100,7 @@ namespace ExpensesTracker.Controllers
         {
             var lists = await GetAvailableLists();
             ViewData["ListId"] = new SelectList(lists, "Id", "Name", null);
+            ViewBag.ReturnUrl = GetReturnUrl();
             
             return View();
         }
@@ -123,6 +137,7 @@ namespace ExpensesTracker.Controllers
 
             var lists = await GetAvailableLists();
             ViewData["ListId"] = new SelectList(lists, "Id", "Name", null);
+            ViewBag.ReturnUrl = GetReturnUrl();
             
             return View(expense);
         }

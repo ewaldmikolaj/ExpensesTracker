@@ -19,6 +19,8 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
 	.AddErrorDescriber<CustomIdentityErrorDescriber>();
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddSession();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -48,5 +50,7 @@ app.MapControllerRoute(
 	pattern: "List/Shares/{listId}",
 	defaults: new { controller = "ListShare", action = "Index" });
 app.MapRazorPages();
+
+app.UseSession();
 
 app.Run();

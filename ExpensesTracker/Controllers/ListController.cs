@@ -76,6 +76,8 @@ namespace ExpensesTracker
                 UserId = userId,
                 Expenses = expenses
             };
+            
+            HttpContext.Session.SetString("ReturnUrl", HttpContext.Request.Path);
 
             return View(expensesList);
         }
