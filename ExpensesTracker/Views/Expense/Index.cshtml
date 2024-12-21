@@ -18,8 +18,8 @@
         <div class="row rounded bg-white shadow-sm m-0 mb-2">
             <div class="col-11 p-2">
                 <a asp-action="Details" asp-route-id="@item.Id" class="d-block text-decoration-none text-black">
-                    <h6 class="m-0">@item.Title, @item.Date.ToString("dd/MM/yyyy")</h6>
-                    <p class="m-0">@item.Amount zł</p>
+                    <h6 class="m-0">@Html.DisplayFor(model => item.Title), @Html.DisplayFor(model => item.Date)</h6>
+                    <p class="m-0">@Html.DisplayFor(model => item.Amount)</p>
                 </a>
             </div>
             <div class="col-1 p-0 bg-danger rounded-end d-flex justify-content-center align-items-center">

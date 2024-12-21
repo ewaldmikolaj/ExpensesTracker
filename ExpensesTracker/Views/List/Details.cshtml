@@ -38,7 +38,7 @@
             <div class="row rounded bg-white shadow-sm m-0 mb-2">
                 <div class="col-12 p-2">
                     <a asp-controller="Expense" asp-action="Details" asp-route-id="@expense.Id" class="d-block text-decoration-none text-black">
-                        <h6 class="mb-0">@expense.Title, @expense.Date.ToString("dd/MM/yyyy")</h6>
+                        @* <h6 class="mb-0">@expense.Title, @expense.Date.ToString("dd/MM/yyyy")</h6> *@
                         <p class="mb-0">@expense.Amount zł</p>
                     </a>
                  </div>
