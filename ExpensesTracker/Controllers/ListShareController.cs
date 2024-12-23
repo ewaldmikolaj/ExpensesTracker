@@ -58,37 +58,45 @@ namespace ExpensesTracker.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(int listId, string userEmail)
+        public async Task<IActionResult> Create(int listId, string? userEmail)
         {
             var currentUser = User.FindFirstValue(ClaimTypes.NameIdentifier); 
             var list = await _context.List.FindAsync(listId);
             var user = _context.Users.FirstOrDefault(u => u.Email == userEmail);
             
-            if (list == null || user == null)
+            if (list == null)
             {
                 return NotFound();
             }
-
+            
             if (currentUser != list.OwnerId)
             {
                 return Unauthorized();
             }
-            
-            if (user.Id == list.OwnerId)
+
+            if (string.IsNullOrEmpty(userEmail))
+            {
+                ModelState.AddModelError("userEmail", "Email jest wymagany."); 
+            }
+            else if (user == null)
+            {
+                ModelState.AddModelError("userEmail", "Dany użytkownik nie istnieje.");
+            } 
+            else if (user.Id == list.OwnerId)
             {
                 ModelState.AddModelError("userEmail", "Nie można udostępnić listy jej właścicielowi");
             }
-
-            var listShare = new ListShare
-            {
-                ListId = list.Id,
-                UserId = user.Id,
-            };
             
             if (ModelState.IsValid)
             {
                 try
                 {
+                    var listShare = new ListShare
+                    {
+                        ListId = list.Id,
+                        UserId = user.Id,
+                    };
+                    
                     _context.Add(listShare);
                     await _context.SaveChangesAsync();
                     return RedirectToRoute("ListShare", new { listId = list.Id });
@@ -108,7 +116,14 @@ namespace ExpensesTracker.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id, int listId)
         {
+            var currentUser = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var list = await _context.List.FindAsync(listId);
             var listShare = await _context.ListShare.FindAsync(id);
+
+            if (currentUser != list.OwnerId)
+            {
+                return Unauthorized();
+            }
             
             if (listShare != null)
             {
