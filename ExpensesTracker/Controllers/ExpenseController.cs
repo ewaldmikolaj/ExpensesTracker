@@ -96,10 +96,10 @@ namespace ExpensesTracker.Controllers
 
         // GET: Expense/Create
         [HttpGet]
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create(int? listId = null)
         {
             var lists = await GetAvailableLists();
-            ViewData["ListId"] = new SelectList(lists, "Id", "Name", null);
+            ViewData["ListId"] = new SelectList(lists, "Id", "Name", listId);
             ViewBag.ReturnUrl = GetReturnUrl();
             
             return View();
@@ -132,7 +132,7 @@ namespace ExpensesTracker.Controllers
             {
                 _context.Add(expense);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return Redirect(GetReturnUrl());
             }
 
             var lists = await GetAvailableLists();
@@ -216,7 +216,7 @@ namespace ExpensesTracker.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return Redirect(GetReturnUrl());;
             }
             
             var lists = _context.List.Include(l => l.Owner)
@@ -266,7 +266,7 @@ namespace ExpensesTracker.Controllers
             }
             await _context.SaveChangesAsync();
             
-            return RedirectToAction(nameof(Index));
+            return Redirect(GetReturnUrl());;
         }
         
         // Receipt Photo related methods

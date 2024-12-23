@@ -11,7 +11,7 @@
             <h4>@Model.List.Name</h4>
         </div>
         <div class="d-flex flex-row gap-2">
-            <a asp-controller="Expense" asp-action="Create">
+            <a asp-controller="Expense" asp-action="Create" asp-route-listId="@Model.List.Id">
                 <button class="btn btn-primary">Stwórz nowy wydatek</button>
             </a>
             @if (@Model.UserId == @Model.List.OwnerId)
@@ -38,8 +38,8 @@
             <div class="row rounded bg-white shadow-sm m-0 mb-2">
                 <div class="col-12 p-2">
                     <a asp-controller="Expense" asp-action="Details" asp-route-id="@expense.Id" class="d-block text-decoration-none text-black">
-                        @* <h6 class="mb-0">@expense.Title, @expense.Date.ToString("dd/MM/yyyy")</h6> *@
-                        <p class="mb-0">@expense.Amount zł</p>
+                        <h6 class="mb-0">@Html.DisplayFor(model => expense.Title), @Html.DisplayFor(model => expense.Date)</h6>
+                        <p class="mb-0">@Html.DisplayFor(model => expense.Amount)</p>
                     </a>
                  </div>
             </div>
